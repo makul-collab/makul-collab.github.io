@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Legacy Diary</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Georgia, 'Times New Roman', serif; background: #fdf8f0; color: #2a1f0e; min-height: 100vh; }
+  .container { max-width: 700px; margin: 0 auto; padding: 2rem 1.25rem; }
+  .page { display: none; }
+  .page.active { display: block; }
+  h1 { font-size: 2rem; font-weight: 400; }
+  h2 { font-size: 1.4rem; font-weight: 400; }
+  .muted { color: #8a6d4a; }
+  .divider { width: 48px; height: 1px; background: #c8b89a; margin: 1.5rem auto; }
+  button { font-family: Georgia, serif; cursor: pointer; border-radius: 8px; font-size: 14px; }
+  .btn-primary { background: #6b4f2a; color: #fdf6ec; border: none; padding: 12px 28px; }
+  .btn-primary:hover { background: #5a4122; }
+  .btn-secondary { background: transparent; color: #6b4f2a; border: 1px solid #c8b89a; padding: 9px 22px; }
+  .btn-secondary:hover { background: #fdf3e3; }
+  .btn-danger { background: transparent; color: #a33; border: 1px solid #f0c0c0; padding: 9px 22px; }
+  .btn-sm { padding: 6px 16px; font-size: 13px; }
+  .btn-block { width: 100%; display: block; margin-bottom: 12px; padding: 13px 26px; font-size: 15px; }
+  input, select, textarea {
+    width: 100%; padding: 10px 14px; border: 1px solid #c8b89a; border-radius: 8px;
+    font-size: 15px; background: #fffdf8; color: #2a1f0e; font-family: Georgia, serif;
+    margin-bottom: 14px; box-sizing: border-box;
+  }
+  textarea { height: 280px; resize: vertical; line-height: 1.8; }
+  label { display: block; font-size: 12px; color: #8a6d4a; margin-bottom: 5px; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; flex-wrap: wrap; gap: 10px; }
+  .topbar-left { display: flex; align-items: center; gap: 14px; }
+  .search-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; }
+  .search-row input, .search-row select { margin-bottom: 0; flex: 1 1 140px; padding: 8px 12px; font-size: 13px; }
+  .entry-card { background: #fffdf8; border: 1px solid #c8b89a; border-radius: 10px; padding: 15px 18px; margin-bottom: 12px; cursor: pointer; border-left-width: 4px; }
+  .entry-card:hover { background: #fdf3e3; }
+  .entry-card-inner { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+  .entry-title { font-size: 16px; font-weight: 500; margin-bottom: 4px; }
+  .entry-preview { font-size: 13px; color: #8a6d4a; font-style: italic; }
+  .entry-meta { text-align: right; flex-shrink: 0; }
+  .tag { display: inline-block; font-size: 11px; padding: 2px 10px; border-radius: 20px; }
+  .entry-date { font-size: 11px; color: #b09a7a; margin-top: 4px; }
+  .read-block { padding-left: 22px; border-left-width: 4px; border-left-style: solid; }
+  .read-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .read-title { font-size: 1.6rem; font-weight: 400; margin-bottom: 1.2rem; }
+  .read-divider { width: 40px; height: 1px; background: #c8b89a; margin-bottom: 1.2rem; }
+  .read-body { font-size: 16px; line-height: 2; white-space: pre-wrap; }
+  .action-row { display: flex; gap: 10px; margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid #e0d4c0; }
+  .save-row { display: flex; gap: 10px; justify-content: flex-end; margin-top: 4px; }
+  .empty { text-align: center; padding: 3rem 0; color: #8a6d4a; font-style: italic; }
+  .home-center { text-align: center; padding-top: 2rem; }
+  .home-btns { max-width: 300px; margin: 0 auto; }
+  .footer-note { color: #b09a7a; font-size: 12px; margin-top: 2rem; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- HOME -->
+  <div id="page-home" class="page">
+    <div class="home-center">
+      <div style="font-size:28px;margin-bottom:10px;">✦</div>
+      <h1>My Legacy Diary</h1>
+      <p class="muted" style="margin-top:6px;font-style:italic;">A treasury of thoughts, wisdom and memories</p>
+      <p style="color:#b09a7a;font-size:13px;margin-top:4px;font-style:italic;">For my children, with love</p>
+      <div class="divider"></div>
+      <div class="home-btns">
+        <button class="btn-primary btn-block" onclick="showWrite()">Write a new entry</button>
+        <button class="btn-secondary btn-block" onclick="showBrowse()">Browse entries (<span id="home-count">0</span>)</button>
+      </div>
+      <p class="footer-note" id="home-footer"></p>
+    </div>
+  </div>
+
+  <!-- WRITE -->
+  <div id="page-write" class="page">
+    <div class="topbar">
+      <div class="topbar-left">
+        <button class="btn-secondary btn-sm" onclick="cancelWrite()">← Back</button>
+        <h2 id="write-heading">New entry</h2>
+      </div>
+    </div>
+    <label>Title</label>
+    <input type="text" id="f-title" placeholder="Give this entry a title…">
+    <div class="grid2">
+      <div>
+        <label>Theme</label>
+        <select id="f-theme">
+          <option>Wisdom</option><option>Life Lessons</option><option>Memories</option>
+          <option>Philosophy</option><option>Faith</option><option>Advice</option><option>Reflections</option>
+        </select>
+      </div>
+      <div>
+        <label>Date</label>
+        <input type="date" id="f-date">
+      </div>
+    </div>
+    <label>Your words</label>
+    <textarea id="f-body" placeholder="Write from the heart…"></textarea>
+    <div class="save-row">
+      <button class="btn-secondary" onclick="cancelWrite()">Cancel</button>
+      <button class="btn-primary" onclick="saveEntry()">Save entry</button>
+    </div>
+  </div>
+
+  <!-- BROWSE -->
+  <div id="page-browse" class="page">
+    <div class="topbar">
+      <div class="topbar-left">
+        <button class="btn-secondary btn-sm" onclick="showHome()">← Home</button>
+        <h2>All entries</h2>
+      </div>
+      <button class="btn-secondary btn-sm" onclick="showWrite()">+ New entry</button>
+    </div>
+    <div class="search-row">
+      <input type="text" id="search-input" placeholder="Search entries…" oninput="renderList()">
+      <select id="filter-theme" onchange="renderList()">
+        <option value="All">All themes</option>
+        <option>Wisdom</option><option>Life Lessons</option><option>Memories</option>
+        <option>Philosophy</option><option>Faith</option><option>Advice</option><option>Reflections</option>
+      </select>
+      <select id="sort-by" onchange="renderList()">
+        <option value="date">Sort by date</option>
+        <option value="theme">Sort by theme</option>
+      </select>
+    </div>
+    <div id="entries-list"></div>
+  </div>
+
+  <!-- READ -->
+  <div id="page-read" class="page">
+    <div class="topbar">
+      <button class="btn-secondary btn-sm" onclick="showBrowse()">← Back</button>
+    </div>
+    <div id="read-content"></div>
+    <div class="action-row">
+      <button class="btn-secondary" onclick="editCurrent()">Edit</button>
+      <button class="btn-danger" onclick="deleteCurrent()">Delete</button>
+    </div>
+  </div>
+
+</div>
+<script>
+const COLORS = {
+  Wisdom:"#7F77DD","Life Lessons":"#1D9E75",Memories:"#D4537E",
+  Philosophy:"#378ADD",Faith:"#BA7517",Advice:"#D85A30",Reflections:"#888780"
+};
+
+let entries = [];
+let currentId = null;
+let editId = null;
+
+function load() {
+  try { entries = JSON.parse(localStorage.getItem("legacyDiary") || "[]"); } catch(e) { entries = []; }
+}
+function persist() {
+  localStorage.setItem("legacyDiary", JSON.stringify(entries));
+}
+function today() {
+  return new Date().toISOString().slice(0,10);
+}
+function fmtDate(d) {
+  try { return new Date(d).toLocaleDateString("en-GB",{day:"numeric",month:"long",year:"numeric"}); } catch(e) { return d; }
+}
+function showPage(id) {
+  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+  document.getElementById("page-"+id).classList.add("active");
+}
+function showHome() {
+  load();
+  document.getElementById("home-count").textContent = entries.length;
+  document.getElementById("home-footer").textContent = entries.length > 0
+    ? entries.length + " entr" + (entries.length===1?"y":"ies") + " written so far" : "";
+  showPage("home");
+}
+function showWrite(id) {
+  editId = id || null;
+  document.getElementById("write-heading").textContent = editId ? "Edit entry" : "New entry";
+  if (editId) {
+    const e = entries.find(x => x.id === editId);
+    document.getElementById("f-title").value = e.title;
+    document.getElementById("f-theme").value = e.theme;
+    document.getElementById("f-date").value = e.date;
+    document.getElementById("f-body").value = e.body;
+  } else {
+    document.getElementById("f-title").value = "";
+    document.getElementById("f-theme").value = "Wisdom";
+    document.getElementById("f-date").value = today();
+    document.getElementById("f-body").value = "";
+  }
+  showPage("write");
+}
+function cancelWrite() {
+  editId ? showRead(currentId) : showHome();
+}
+function saveEntry() {
+  const title = document.getElementById("f-title").value.trim();
+  const body = document.getElementById("f-body").value.trim();
+  if (!title || !body) { alert("Please add a title and some text before saving."); return; }
+  const entry = {
+    id: editId || Date.now(),
+    title, body,
+    theme: document.getElementById("f-theme").value,
+    date: document.getElementById("f-date").value
+  };
+  if (editId) {
+    entries = entries.map(e => e.id === editId ? entry : e);
+  } else {
+    entries.unshift(entry);
+  }
+  persist();
+  editId = null;
+  showBrowse();
+}
+function showBrowse() {
+  load();
+  renderList();
+  showPage("browse");
+}
+function renderList() {
+  const search = (document.getElementById("search-input").value || "").toLowerCase();
+  const theme = document.getElementById("filter-theme").value;
+  const sort = document.getElementById("sort-by").value;
+  let list = entries
+    .filter(e => theme === "All" || e.theme === theme)
+    .filter(e => !search || e.title.toLowerCase().includes(search) || e.body.toLowerCase().includes(search))
+    .sort((a,b) => sort==="date" ? new Date(b.date)-new Date(a.date) : a.theme.localeCompare(b.theme));
+  const el = document.getElementById("entries-list");
+  if (!list.length) {
+    el.innerHTML = '<div class="empty">' + (entries.length===0 ? "Your diary awaits its first entry." : "No entries match your search.") + '</div>';
+    return;
+  }
+  el.innerHTML = list.map(e => {
+    const c = COLORS[e.theme] || "#888";
+    const preview = e.body.slice(0,90) + (e.body.length>90?"…":"");
+    return `<div class="entry-card" style="border-left-color:${c}" onclick="showRead(${e.id})">
+      <div class="entry-card-inner">
+        <div>
+          <div class="entry-title">${e.title}</div>
+          <div class="entry-preview">${preview}</div>
+        </div>
+        <div class="entry-meta">
+          <span class="tag" style="background:${c}22;color:${c};border:1px solid ${c}55">${e.theme}</span>
+          <div class="entry-date">${fmtDate(e.date)}</div>
+        </div>
+      </div>
+    </div>`;
+  }).join("");
+}
+function showRead(id) {
+  load();
+  currentId = id;
+  const e = entries.find(x => x.id === id);
+  if (!e) return;
+  const c = COLORS[e.theme] || "#888";
+  document.getElementById("read-content").innerHTML = `
+    <div class="read-block" style="border-left-color:${c}">
+      <div class="read-header">
+        <span class="tag" style="background:${c}22;color:${c};border:1px solid ${c}55">${e.theme}</span>
+        <span style="font-size:12px;color:#b09a7a">${fmtDate(e.date)}</span>
+      </div>
+      <div class="read-title">${e.title}</div>
+      <div class="read-divider"></div>
+      <div class="read-body">${e.body.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}</div>
+    </div>`;
+  showPage("read");
+}
+function editCurrent() { showWrite(currentId); }
+function deleteCurrent() {
+  if (!confirm("Delete this entry permanently?")) return;
+  entries = entries.filter(e => e.id !== currentId);
+  persist();
+  showBrowse();
+}
+
+load();
+showHome();
+</script>
+</body>
+</html>
